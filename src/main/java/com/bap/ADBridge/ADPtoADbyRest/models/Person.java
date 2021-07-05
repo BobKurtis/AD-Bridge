@@ -1,4 +1,5 @@
-package com.bap.ADBridge.restService;
+package com.bap.ADBridge.ADPtoADbyRest.models;
+
 public class Person {
 
     private String name;

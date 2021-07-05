@@ -1,8 +1,10 @@
-package com.bap.ADBridge.restService;
+package com.bap.ADBridge.ADPtoADbyRest.controllers;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.bap.ADBridge.ADPtoADbyRest.services.ADService;
+import com.bap.ADBridge.ADPtoADbyRest.models.Person;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -11,19 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class ADController {
 
-    private static final String template = "Hello, %s!";
-    private final AtomicLong counter = new AtomicLong();
-
-/*    @Autowired
-    private UserService userService;*/
-
     @Autowired
     private ADService adService;
-
-   /* @GetMapping("/greeting")
-    public Greeting greeting(@RequestParam(value = "name", defaultValue = "World") String name) {
-        return new Greeting(counter.incrementAndGet(), String.format(template, name));
-    }*/
 
     @GetMapping("/lookfor")
     public List<String> search(@RequestParam(value = "name", defaultValue = "") String name) {
@@ -38,17 +29,18 @@ public class ADController {
 
     @GetMapping("/findUserByCommonName")
     public List findUserByCommonName(@RequestParam(value = "name", defaultValue = "Administrator") String name) {
-        //http://localhost:8080/findUserByCommonName?name=Bob%20Admire
+        //https://localhost:8443/findUserByCommonName?name=Bob%20Admire
         return adService.findUserByCommonName(name);
     }
 
     @GetMapping("/createUser")
-    public void createUser(@RequestParam(value = "name", defaultValue = "Smitty") String name, @RequestParam(value="password", defaultValue="password") String password) {
-       adService.create(name, password);
+    public void createUser(@RequestParam(value = "name", defaultValue = "Smitty") String name, @RequestParam(value = "password", defaultValue = "password") String password) {
+        //https://localhost:8443/createUser?name=Test&password=1abcdefg!
+        adService.create(name, password);
     }
 
     @GetMapping("/")
-    public String index(){
+    public String index() {
         return "Home page";
     }
 

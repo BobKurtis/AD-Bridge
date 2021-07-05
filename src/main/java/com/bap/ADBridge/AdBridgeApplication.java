@@ -1,6 +1,7 @@
 package com.bap.ADBridge;
 
 //import com.mashape.unirest.http.Unirest;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -11,8 +12,12 @@ import kong.unirest.json.JSONObject;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.core.support.LdapContextSource;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 //import sun.net.ftp.FtpClient;
 
 
@@ -27,22 +32,6 @@ public class AdBridgeApplication {
     @Bean
     public LdapContextSource contextSourceReadOnly() {
         LdapContextSource contextSource = new LdapContextSource();
-
-        //PropertyResolver env = null;
-		/*contextSource.setUrl(env.getRequiredProperty("ldap.url"));
-		contextSource.setBase(env.getRequiredProperty("ldap.partitionSuffix"));
-		contextSource.setUserDn(env.getRequiredProperty("ldap.principal"));
-		contextSource.setPassword(env.getRequiredProperty("ldap.password"));*/
-		/*contextSource.setUrl("ldap://ldap.forumsys.com:389");
-		contextSource.setBase("dc=example,dc=com");
-		contextSource.setUserDn("cn=read-only-admin,dc=example,dc=com");
-		contextSource.setPassword("password");*/
-
-		/*contextSource.setUrl("ldap://db.debian.org:389");
-		contextSource.setBase("dc=debian,dc=org");
-		contextSource.setUserDn("");
-		contextSource.setPassword("");*/
-
         contextSource.setUrl("LDAP://clc.loc:389");
         contextSource.setBase("dc=clc,dc=loc");
         contextSource.setUserDn("SA_ADPSyncRO");
@@ -56,26 +45,25 @@ public class AdBridgeApplication {
         LdapContextSource contextSource = new LdapContextSource();
         //has write access to: OU=ADPSyncTest,OU=Accounts,DC=clc,DC=loc
         contextSource.setUrl("LDAP://clc.loc:389");
-        contextSource.setBase("dc=clc,dc=loc");
+        contextSource.setBase("ou=ADPSyncTest,ou=Accounts,dc=clc,dc=loc");
         contextSource.setUserDn("SA_ADPSync");
         contextSource.setPassword("PADL_Boat!");
 
         return contextSource;
     }
 
-    @Bean
+    @Bean(name = "readOnly")
     public LdapTemplate ldapTemplateReadOnly() {
         return new LdapTemplate(contextSourceReadOnly());
     }
 
-    @Bean
+    @Bean(name = "writing")
     public LdapTemplate ldapTemplateWriter() {
         return new LdapTemplate(contextSourceWriter());
     }
 
     @Bean
     public void clientCredentials() throws Exception {
-
 
         Unirest.config().clientCertificateStore("src/main/resources/test.jks", "test");
 
@@ -104,4 +92,13 @@ public class AdBridgeApplication {
 
     }
 
+    @Configuration
+    @EnableWebSecurity
+    public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+        @Override
+        protected void configure(HttpSecurity security) throws Exception {
+            security.httpBasic().disable();
+        }
+    }
 }
