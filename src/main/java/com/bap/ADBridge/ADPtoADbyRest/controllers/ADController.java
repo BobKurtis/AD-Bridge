@@ -39,6 +39,12 @@ public class ADController {
         adService.create(name, password);
     }
 
+    @GetMapping("/modifyUser")
+    public void modifyUser(@RequestParam(value = "name", defaultValue = "Smitty") String name, @RequestParam(value = "password", defaultValue = "password") String password) {
+        //https://localhost:8443/modifyUser?name=Test&password=1abcdefg!
+        adService.modify(name, password);
+    }
+
     @GetMapping("/")
     public String index() {
         return "Home page";

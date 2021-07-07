@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.ldap.core.AttributesMapper;
 import org.springframework.ldap.core.DirContextAdapter;
+import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.filter.AndFilter;
 import org.springframework.ldap.filter.EqualsFilter;
@@ -88,6 +89,28 @@ public class ADService {
 
         ldapTemplateWriter.bind(context);
     }
+    public void modify(String username, String password) {
+        Name dn = LdapNameBuilder.newInstance()
+                //.add("ou", "ADPSyncTest")
+                //.add("ou", "Accounts")
+                .add("cn", username)
+                .build();
+        DirContextOperations context
+                = ldapTemplateWriter.lookupContext(dn);
 
+        context.setAttributeValues
+                ("objectclass",
+                        new String[]
+                                { "top",
+                                        "person",
+                                        "organizationalPerson",
+                                        "user" });
+        context.setAttributeValue("cn", username);
+        context.setAttributeValue("sn", "This Was Modified");
+        context.setAttributeValue("userPassword",
+                digestSHA.digestSHA(password));
+
+        ldapTemplateWriter.modifyAttributes(context);
+    }
 
 }
